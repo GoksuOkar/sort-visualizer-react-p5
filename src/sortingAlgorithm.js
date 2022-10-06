@@ -1,8 +1,10 @@
-function sorter (array, startIdx, endIdx) {
+import { sleep } from './helpers.js';
 
+async function sorter (array, startIdx, endIdx, t = 20, states) {
   let l = startIdx;
   let r = endIdx - 1;
   let pivot = endIdx;
+
 
 
   if (startIdx >= endIdx) {
@@ -11,7 +13,11 @@ function sorter (array, startIdx, endIdx) {
 
   while (l <= r) {
     if (array[l] > array[pivot] && array[r] < array[pivot]) {
-      swap(l, r, array);
+      states[l] = 0;
+      states[r] = 2;
+      await swap(l, r, array, t, states);
+      states[l] = -1;
+      states[r] = -1;
     }
     if (array[l] <= array[pivot]) {
       l = l + 1;
@@ -19,27 +25,24 @@ function sorter (array, startIdx, endIdx) {
     if (array[r] >= array[pivot]) {
       r = r - 1;
     }
+    await sleep(t);
   }
-  swap(l, pivot, array);
+
+  await swap(l, pivot, array, t, states);
   const leftSubArrayIsSmaller = r - startIdx < l + 1 - pivot;
   if (leftSubArrayIsSmaller) {
-    sorter(array, 0, r);
-    sorter(array, l + 1, endIdx);
+    await Promise.all([sorter(array, 0, r, t, states), sorter(array, l + 1, endIdx,t, states)]);
   } else {
-    sorter(array, l + 1, endIdx);
-    sorter(array, 0, r);
+    await Promise.all([sorter(array, l + 1, endIdx, t, states), sorter(array, 0, r, t, states)]);
   }
 }
 
-function swap(l, r, array) {
+async function swap(l, r, array, t = 20, states) {
+  await sleep(t);
   let temp = array[r];
   array[r] = array[l];
   array[l] = temp;
   return;
 }
-
-// function sleep(ms) {
-//   return new Promise(resolve => setTimeout(resolve, ms));
-// }
 
 export default sorter;

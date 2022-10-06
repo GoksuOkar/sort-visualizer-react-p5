@@ -1,36 +1,55 @@
 import Sketch from 'react-p5';
+import sorter from './sortingAlgorithm.js';
+import { Button } from '@mantine/core';
 
 
-function P5({array}) {
-    const setup = (p5, canvasParentRef) => {
-      const myCanvas = p5.createCanvas(900, 600)
-      myCanvas.parent(canvasParentRef);
-      resetSketch();
+function P5({array, playing, resetArray}) {
+  const states = [];
 
-    }
+  let toSort = array.slice();
+  const setup = (p5, canvasParentRef) => {
+    const myCanvas = p5.createCanvas(1000, 600)
+    myCanvas.parent(canvasParentRef);
+    sortPlay();
+  }
 
-    const resetSketch = () => {
-        const newArr = [];
-        while (newArr.length < 50) {
-          newArr.push(getRandomInt(5, 100));
-        }
-        return newArr;
-    }
+  const sortPlay = () => {
+    toSort = array.slice();
+    sorter(toSort, 0, toSort.length - 1, 25, states);
+  }
 
-    const draw = (p5) => {
-      p5.clear();
-      for (let i = 0; i < array.length; i++) {
-        p5.stroke(0);
-        p5.fill(255, 0, 0)
-        p5.rect(i * 20, p5.height - array[i], 20, array[i])
+  const draw = async (p5) => {
+    p5.clear();
+    for (let i = 0; i < toSort.length; i++) {
+      p5.stroke(0);
+      if (states[i] === 0) {
+        p5.fill(240,235,244);
+      } else if (states[i] === 2){
+        p5.fill(114,206,241);
       }
+       else {
+        p5.fill(163,47,126);
+      }
+      p5.rect(i * 8, p5.height - toSort[i], 8, toSort[i])
     }
+  }
 
-  return (<Sketch setup={setup} draw={draw} />);
-}
+  return (
+    <div>
+      <Sketch setup={setup} draw={draw} />
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-evenly"
+        }}
+      >
+        <Button onClick={sortPlay} color="indigo" radius="lg">Sort</Button>
+        <Button onClick={resetArray} color="indigo" radius="lg">Reset Array</Button>
+      </div>
+    </div>
+  )
 
-function getRandomInt (min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min)
+
 }
 
 export default P5;
