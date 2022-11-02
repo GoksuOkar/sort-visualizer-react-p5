@@ -2,25 +2,34 @@ import Sketch from 'react-p5';
 import quicksort from './sortingAlgorithm.js';
 import { Button } from '@mantine/core';
 import {generateArray} from './helpers.js';
+import {useState, useEffect} from 'react';
 
 function P5() {
+  const [reset, toggleReset] = useState(false);
+
   const states = [];
-  let toSort = generateArray();
+  let toSort = [];
+
+  useEffect(() => {
+    toSort = generateArray();
+    sortPlay();
+  })
 
   const setup = (p5, canvasParentRef) => {
-
+    toSort = generateArray();
     for (let i = 0; i < toSort.length; i++) {
       states.push(-1);
     }
     const myCanvas = p5.createCanvas(1000, 600)
     myCanvas.parent(canvasParentRef);
+    sortPlay();
   }
 
   const sortPlay = () => {
     quicksort(toSort, 0, toSort.length - 1, states);
   }
 
-  const draw = async (p5) => {
+  const draw = (p5) => {
     p5.clear();
     for (let i = 0; i < toSort.length; i++) {
       p5.stroke(0);
@@ -46,8 +55,7 @@ function P5() {
           justifyContent: "space-evenly"
         }}
       >
-        <Button color="gray" uppercase onClick={sortPlay}>Play</Button>
-        <Button onClick={() => {toSort = generateArray()}} color="gray" uppercase>Reset Array</Button>
+        <Button  color="gray" uppercase onClick={() => toggleReset(!reset)}>Reset Array</Button>
       </div>
       <Sketch setup={setup} draw={draw} />
     </div>
